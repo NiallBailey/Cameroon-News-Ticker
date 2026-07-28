@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>Cameroon Humanitarian News Ticker</title>
+
+<style>
+
+body {
+    margin:0;
+    background:#111827;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.container {
+    height:45px;
+    display:flex;
+    align-items:center;
+    width:100%;
+}
+
+.label {
+    background:#991b1b;
+    color:white;
+    font-weight:bold;
+    padding:13px 18px;
+    white-space:nowrap;
+    z-index:2;
+}
+
+.ticker-window {
+    overflow:hidden;
+    flex:1;
+    color:white;
+}
+
+.ticker {
+    display:inline-block;
+    white-space:nowrap;
+    animation:scroll 80s linear infinite;
+}
+
+.ticker a {
+    color:white;
+    text-decoration:none;
+    margin-right:50px;
+}
+
+.ticker a:hover {
+    text-decoration:underline;
+}
+
+
+@keyframes scroll {
+
+from {
+    transform:translateX(100%);
+}
+
+to {
+    transform:translateX(-100%);
+}
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+<div class="label">
+🟥 CAMEROON HUMANITARIAN WATCH
+</div>
+
+
+<div class="ticker-window">
+
+<div id="ticker" class="ticker">
+Loading latest updates...
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const rss = 
+"https://news.google.com/rss/search?q=Cameroon+(conflict+OR+war+OR+violence+OR+insurgency+OR+Boko+Haram+OR+ISWAP+OR+humanitarian+OR+IDP+OR+displacement+OR+refugees+OR+security)&hl=en-GB&gl=GB&ceid=GB:en";
+
+
+async function loadNews(){
+
+try {
+
+let response = await fetch(
+"https://api.rss2json.com/v1/api.json?rss_url=" 
++ encodeURIComponent(rss)
+);
+
+
+let data = await response.json();
+
+
+let articles = data.items.slice(0,15);
+
+
+let output="";
+
+
+articles.forEach(article=>{
+
+let date = new Date(article.pubDate);
+
+let formattedDate = date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+});
+
+output += 
+`<a href="${article.link}" target="_blank">
+[${formattedDate}] ${article.title} - ${article.author || 'Source: Google News'}
+</a>`;
+
+});
+
+
+
+document.getElementById("ticker").innerHTML=output;
+
+
+}
+
+catch(error){
+
+document.getElementById("ticker").innerHTML=
+"Unable to load Cameroon news feed";
+
+}
+
+}
+
+
+loadNews();
+
+
+// refresh every 5 minutes
+setInterval(loadNews,900000);
+
+
+</script>
+
+
+</body>
+</html>
